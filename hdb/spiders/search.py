@@ -30,9 +30,7 @@ class SearchSpider(scrapy.Spider):
             url = div.xpath('.//h3//a/@href').extract()[0].strip()
             item['url'] = url
             finished = div.xpath('string(.//*[contains(@class,"find_main_time")])').extract()[0].strip()
-            print(type(finished), finished)
             if '已结束' != finished:
-                print('OK!=OK')
                 yield Request(url, meta={'item': item}, callback=self.parse_detail)
 
         for i in range(2, 11):
@@ -42,7 +40,7 @@ class SearchSpider(scrapy.Spider):
     def parse_detail(self, response):
         item = response.meta['item']
         item['subject'] = response.xpath('string(//h1[@id="dt_title"])').extract()[0].strip()
-        item['addr'] = response.xpath('string(//*[contains(@class,"detail_attr_blue")])').extract()[0].strip()
+        item['addr'] = response.xpath('string(//*[contains(@class,"detail_attr_")])').extract()[0].strip()
         shopid = re.search('/(\w{4,7}).html', item['url']).group(1)
         url = 'http://api.hdb.com/ajax/api:4009?queryType=0&infoId36={}&infoType=party'.format(shopid)
         yield Request(url, meta={'shopid': shopid, 'item':item}, callback=self.parse_ajax0)
